@@ -14,7 +14,9 @@
       {{product.price}} ₽
     </span>
 
-    <color-list :color-show-list="product.colors" v-model="color" :highlight-black="true"/>
+    <div class="colors--black">
+      <color-list :color-show-list="product.colors" v-model="color"/>
+    </div>
   </div>
 </template>
 

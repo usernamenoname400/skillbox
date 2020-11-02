@@ -1,5 +1,5 @@
 <template>
-  <ul class="colors" :class="{'colors--black': highlightBlack}">
+  <ul class="colors">
     <li
       class="colors__item"
       v-for="color in currentColorList"
@@ -27,7 +27,7 @@ export default {
     prop: 'colorVal',
     event: 'update-color-val',
   },
-  props: ['colorShowList', 'colorVal', 'highlightBlack'],
+  props: ['colorShowList', 'colorVal'],
   data() {
     return {
       colorSel: this.colorVal,

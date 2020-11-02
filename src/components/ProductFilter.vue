@@ -50,7 +50,7 @@
       </fieldset>
 
       <fieldset class="form__block">
-        <legend class="form__legend">Цвет</legend>
+        <legend class="form__legend colors--white">Цвет</legend>
         <color-list :color-show-list="null" v-model="currentColorVal"/>
       </fieldset>
 
