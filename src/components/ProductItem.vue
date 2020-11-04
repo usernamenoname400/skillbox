@@ -1,6 +1,10 @@
 <template>
   <div>
-    <a class="catalog__pic" href="#">
+    <a
+      class="catalog__pic"
+      href="#"
+      @click.prevent="gotoPage('product', {id: product.id})"
+    >
       <img :src="product.image" :alt="product.title">
     </a>
 
@@ -11,7 +15,7 @@
     </h3>
 
     <span class="catalog__price">
-      {{product.price}} ₽
+      {{product.price | numberFormat}} ₽
     </span>
 
     <div class="colors--black">
@@ -21,7 +25,9 @@
 </template>
 
 <script>
-import ColorList from './ColorList.vue';
+import ColorList from '@/components/ColorList.vue';
+import gotoPage from '@/helpers/gotoPage';
+import numberFormat from '@/helpers/numberFormat';
 
 export default {
   data() {
@@ -29,7 +35,13 @@ export default {
       color: 0,
     };
   },
+  filters: {
+    numberFormat,
+  },
   components: { ColorList },
   props: ['product'],
+  methods: {
+    gotoPage,
+  },
 };
 </script>
