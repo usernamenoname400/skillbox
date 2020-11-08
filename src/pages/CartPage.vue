@@ -18,7 +18,7 @@
         Корзина
       </h1>
       <span class="content__info">
-        {{numberOfProducts}}
+        {{cartProductCount}}
       </span>
     </div>
 
@@ -58,6 +58,11 @@ export default {
   filters: { numberFormat },
   computed: {
     ...mapGetters(['cartDetailProducts', 'cartTotalPrice']),
+    cartProductCount() {
+      return numberOfProducts(this.$store.state.cartProducts.length);
+    },
+  },
+  methods: {
     numberOfProducts,
   },
 };
