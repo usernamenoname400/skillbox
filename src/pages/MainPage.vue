@@ -10,17 +10,10 @@
     </div>
 
     <div class="content__catalog">
-      <ProductFilter
-        :price-from.sync="filterPriceFrom"
-        :price-to.sync="filterPriceTo"
-        :category-id.sync="filterCategoryId"
-        :color-val.sync="filterColorVal"
-      />
+      <ProductFilter v-bind.sync="filters"/>
 
       <section class="catalog">
-        <ProductList
-          :products="products"
-        />
+        <ProductList :products="products"/>
         <BasePagination v-model="page" :count="countProducts" :per-page="productsPerPage"/>
       </section>
     </div>
@@ -37,10 +30,12 @@ export default {
   components: { ProductList, BasePagination, ProductFilter },
   data() {
     return {
-      filterPriceFrom: 0,
-      filterPriceTo: 0,
-      filterCategoryId: 0,
-      filterColorVal: '',
+      filters: {
+        priceFrom: 0,
+        priceTo: 0,
+        categoryId: 0,
+        colorVal: '',
+      },
       page: 1,
       productsPerPage: 3,
     };
@@ -49,27 +44,27 @@ export default {
     filteredProducts() {
       let filteredProducts = products;
 
-      if (this.filterPriceFrom > 0) {
+      if (this.filters.priceFrom > 0) {
         filteredProducts = filteredProducts.filter(
-          (product) => product.price > this.filterPriceFrom,
+          (product) => product.price > this.filters.priceFrom,
         );
       }
 
-      if (this.filterPriceTo > 0) {
+      if (this.filters.priceTo > 0) {
         filteredProducts = filteredProducts.filter(
-          (product) => product.price < this.filterPriceTo,
+          (product) => product.price < this.filters.priceTo,
         );
       }
 
-      if (this.filterCategoryId !== 0) {
+      if (this.filters.categoryId !== 0) {
         filteredProducts = filteredProducts.filter(
-          (product) => product.categoryId === this.filterCategoryId,
+          (product) => product.categoryId === this.filters.categoryId,
         );
       }
 
-      if (this.filterColorVal !== '') {
+      if (this.filters.colorVal !== '') {
         filteredProducts = filteredProducts.filter(
-          (product) => product.colors.indexOf(this.filterColorVal) !== -1,
+          (product) => product.colors.indexOf(this.filters.colorVal) !== -1,
         );
       }
 

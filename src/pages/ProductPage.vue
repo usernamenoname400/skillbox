@@ -203,5 +203,24 @@ export default {
       );
     },
   },
+  /* Если не поставить данный хук, то при первом входе на страницу товара,
+     проверка идентификатора товара не производится. Watch срабатывает только
+     при переходе с товара на товар */
+  beforeRouteEnter(to, from, next) {
+    if (products.find((product) => product.id === +to.params.id)) {
+      next();
+    } else {
+      next({ name: 'notfound', params: { 0: to.path } });
+    }
+  },
+  watch: {
+    /* Без этой директивы, eslint-у не нравятся имена методов в кавычках */
+    // eslint-disable-next-line
+    '$route.params.id'() {
+      if (!this.product) {
+        this.$router.replace({ name: 'notfound', params: { 0: this.$route.path } });
+      }
+    },
+  },
 };
 </script>

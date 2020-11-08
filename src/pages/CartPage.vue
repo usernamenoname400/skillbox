@@ -18,7 +18,7 @@
         Корзина
       </h1>
       <span class="content__info">
-        {{cartProductCount}}
+        {{numberOfProducts}}
       </span>
     </div>
 
@@ -26,7 +26,7 @@
       <form class="cart__form form" action="#" method="POST">
         <div class="cart__field">
           <ul class="cart__list">
-            <CartItem v-for="item in products" :key="item.productId" :item="item" />
+            <CartItem v-for="item in cartDetailProducts" :key="item.productId" :item="item" />
           </ul>
         </div>
 
@@ -35,7 +35,7 @@
             Мы&nbsp;посчитаем стоимость доставки на&nbsp;следующем этапе
           </p>
           <p class="cart__price">
-            Итого: <span>{{totalPrice|numberFormat}} ₽</span>
+            Итого: <span>{{cartTotalPrice | numberFormat}} ₽</span>
           </p>
 
           <button class="cart__button button button--primery" type="submit">
@@ -51,25 +51,14 @@
 import CartItem from '@/components/CartItem.vue';
 import numberFormat from '@/helpers/numberFormat';
 import { mapGetters } from 'vuex';
+import numberOfProducts from '@/helpers/numberOfProducts';
 
 export default {
   components: { CartItem },
   filters: { numberFormat },
   computed: {
-    ...mapGetters({ products: 'cartDetailProducts', totalPrice: 'cartTotalPrice' }),
-    cartProductCount() {
-      const result = this.$store.state.cartProducts.length;
-      if ([11, 12, 13].includes(result)) {
-        return `${result} товаров`;
-      }
-      if (result % 10 === 1) {
-        return `${result} товар`;
-      }
-      if ([2, 3, 4].includes(result % 10)) {
-        return `${result} товара`;
-      }
-      return `${result} товаров`;
-    },
+    ...mapGetters(['cartDetailProducts', 'cartTotalPrice']),
+    numberOfProducts,
   },
 };
 </script>
