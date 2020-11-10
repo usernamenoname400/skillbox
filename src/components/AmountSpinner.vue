@@ -6,7 +6,7 @@
       </svg>
     </button>
 
-    <input type="text" v-model="amount">
+    <input type="text" v-model.number="amount">
 
     <button type="button" aria-label="Добавить один товар" @click="incrementAmount">
       <svg width="12" height="12" fill="currentColor">
@@ -40,6 +40,9 @@ export default {
   watch: {
     amount(value) {
       this.$emit('input', value);
+    },
+    value() {
+      this.amount = this.value;
     },
   },
 };

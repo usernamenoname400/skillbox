@@ -1,5 +1,11 @@
 <template>
-  <main class="content container">
+  <main class="content container" v-if="productsLoading">
+    Загрузка товара....
+  </main>
+  <main class="content container" v-else-if="productsLoadingFailed">
+    Ошибка при загрузке товара
+  </main>
+  <main class="content container" v-else>
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
@@ -44,31 +50,7 @@
 
             <fieldset class="form__block">
               <legend class="form__legend">Цвет:</legend>
-              <ul class="colors">
-                <li class="colors__item">
-                  <label class="colors__label">
-                    <input class="colors__radio sr-only" type="radio" name="color-item"
-                    value="blue" checked="">
-                    <span class="colors__value" style="background-color: #73B6EA;">
-                    </span>
-                  </label>
-                </li>
-                <li class="colors__item">
-                  <label class="colors__label">
-                    <input class="colors__radio sr-only" type="radio" name="color-item"
-                    value="yellow">
-                    <span class="colors__value" style="background-color: #FFBE15;">
-                    </span>
-                  </label>
-                </li>
-                <li class="colors__item">
-                  <label class="colors__label">
-                    <input class="colors__radio sr-only" type="radio" name="color-item"
-                    value="gray">
-                    <span class="colors__value" style="background-color: #939393;">
-                  </span></label>
-                </li>
-              </ul>
+              <color-list :color-show-list="product.colors" />
             </fieldset>
 
             <fieldset class="form__block">
@@ -108,11 +90,17 @@
             <div class="item__row">
               <AmountSpinner v-model="productAmount"/>
 
-              <button class="button button--primery" type="submit">
+              <button
+                class="button button--primery"
+                type="submit"
+                :disabled="productAddSending"
+              >
                 В корзину
               </button>
             </div>
           </form>
+          <div v-if="productAdded">Товар добавлен в корзину</div>
+          <div v-else-if="productAddSending">Добавляем товар в корзину в корзину</div>
         </div>
       </div>
 
@@ -168,58 +156,80 @@
 </template>
 
 <script>
-import products from '@/data/products';
-import categories from '@/data/categories';
+import axios from 'axios';
+import { mapActions } from 'vuex';
 import gotoPage from '@/helpers/gotoPage';
 import numberFormat from '@/helpers/numberFormat';
 import AmountSpinner from '@/components/AmountSpinner.vue';
+import ColorList from '@/components/ColorList.vue';
 
 export default {
   data() {
     return {
       productAmount: 1,
+      productData: null,
+      productsLoading: false,
+      productsLoadingFailed: false,
+      productAdded: false,
+      productAddSending: false,
+      productAddError: false,
     };
   },
   components: {
     AmountSpinner,
+    ColorList,
   },
   filters: {
     numberFormat,
   },
   computed: {
     product() {
-      return products.find((product) => product.id === +this.$route.params.id);
+      const result = this.productData;
+      result.image = result.image.file.url;
+      result.colors = result.colors.map((color) => color.id);
+      return result;
     },
     category() {
-      return categories.find((category) => category.id === this.product.categoryId);
+      return this.productData.category;
     },
   },
   methods: {
+    ...mapActions(['addProductToCart']),
     gotoPage,
     addToCart() {
-      this.$store.commit(
-        'addProductToCart',
-        { productId: this.product.id, amount: this.productAmount },
-      );
+      this.productAdded = false;
+      this.productAddSending = true;
+      this.addProductToCart({ productId: this.product.id, amount: this.productAmount })
+        .then(() => { this.productAdded = true; })
+        .catch(() => {
+          this.productAddError = true;
+          this.productAdded = false;
+        })
+        .then(() => { this.productAddSending = false; });
     },
-  },
-  /* Если не поставить данный хук, то при первом входе на страницу товара,
-     проверка идентификатора товара не производится. Watch срабатывает только
-     при переходе с товара на товар */
-  beforeRouteEnter(to, from, next) {
-    if (products.find((product) => product.id === +to.params.id)) {
-      next();
-    } else {
-      next({ name: 'notfound', params: { 0: to.path } });
-    }
+    loadProduct() {
+      this.productsLoading = true;
+      this.productsLoadingFailed = false;
+      clearTimeout(this.loadProductsTimer);
+      axios.get(`/api/products/${this.$route.params.id}`)
+        .then((response) => {
+          this.productData = response.data;
+        })
+        .catch(() => {
+          this.productsLoadingFailed = true;
+          this.$router.replace({ name: 'notfound', params: { 0: this.$route.path } });
+        })
+        .then(() => { this.productsLoading = false; });
+    },
   },
   watch: {
     /* Без этой директивы, eslint-у не нравятся имена методов в кавычках */
     // eslint-disable-next-line
-    '$route.params.id'() {
-      if (!this.product) {
-        this.$router.replace({ name: 'notfound', params: { 0: this.$route.path } });
-      }
+    '$route.params.id': {
+      handler() {
+        this.loadProduct();
+      },
+      immediate: true,
     },
   },
 };

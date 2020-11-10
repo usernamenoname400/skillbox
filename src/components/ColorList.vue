@@ -20,36 +20,52 @@
 </template>
 
 <script>
-import colorsList from '../data/colors';
+import axios from 'axios';
 
 export default {
   model: {
-    prop: 'colorVal',
-    event: 'update-color-val',
+    prop: 'colorId',
+    event: 'update-color-id',
   },
-  props: ['colorShowList', 'colorVal'],
+  props: ['colorShowList', 'colorId'],
   data() {
     return {
-      colorSel: this.colorVal,
+      colorSel: this.colorId,
+      colorData: null,
     };
   },
   computed: {
     currentColorList() {
+      if (!this.colorData) {
+        return [];
+      }
       if (this.colorShowList != null) {
         /* я попробовал поставить условие if (this.colorShowList) -
         в консоли пишет warning colorShowList is null */
-        return colorsList.filter((color) => this.colorShowList.indexOf(color.id) >= 0);
+        return this.colorData.filter((color) => this.colorShowList.indexOf(color.id) >= 0);
       }
-      return colorsList;
+      return this.colorData;
     },
   },
   watch: {
-    colorVal(value) {
+    colorId(value) {
       this.colorSel = value;
     },
     colorSel(value) {
-      this.$emit('update-color-val', value);
+      this.$emit('update-color-id', value);
     },
+  },
+  methods: {
+    loadColors() {
+      axios.get('/api/colors')
+        .then((response) => {
+          this.colorData = response.data.items.map((color) => ({ ...color, value: color.code }));
+        })
+        .catch((error) => console.log(error));
+    },
+  },
+  created() {
+    this.loadColors();
   },
 };
 </script>

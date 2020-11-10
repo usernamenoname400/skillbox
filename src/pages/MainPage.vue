@@ -5,7 +5,7 @@
         Каталог
       </h1>
       <span class="content__info">
-        152 товара
+        {{numberOfProductsLabel}}
       </span>
     </div>
 
@@ -13,6 +13,11 @@
       <ProductFilter v-bind.sync="filters"/>
 
       <section class="catalog">
+        <div v-if="productsLoading">Загрузка товаров...</div>
+        <div v-if="productsLoadingFailed">
+          Ошибка при загрузке товаров
+          <button @click.prevent="loadProducts()">Попробовать еще раз</button>
+        </div>
         <ProductList :products="products"/>
         <BasePagination v-model="page" :count="countProducts" :per-page="productsPerPage"/>
       </section>
@@ -21,10 +26,11 @@
 </template>
 
 <script>
-import products from '@/data/products';
 import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
+import numberOfProducts from '@/helpers/numberOfProducts';
+import axios from 'axios';
 
 export default {
   components: { ProductList, BasePagination, ProductFilter },
@@ -34,50 +40,82 @@ export default {
         priceFrom: 0,
         priceTo: 0,
         categoryId: 0,
-        colorVal: '',
+        colorId: '',
       },
       page: 1,
       productsPerPage: 3,
+      productsData: null,
+      productsLoading: false,
+      productsLoadingFailed: false,
     };
   },
   computed: {
-    filteredProducts() {
-      let filteredProducts = products;
-
-      if (this.filters.priceFrom > 0) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.price > this.filters.priceFrom,
-        );
-      }
-
-      if (this.filters.priceTo > 0) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.price < this.filters.priceTo,
-        );
-      }
-
-      if (this.filters.categoryId !== 0) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.categoryId === this.filters.categoryId,
-        );
-      }
-
-      if (this.filters.colorVal !== '') {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.colors.indexOf(this.filters.colorVal) !== -1,
-        );
-      }
-
-      return filteredProducts;
-    },
     products() {
-      const offset = (this.page - 1) * this.productsPerPage;
-
-      return this.filteredProducts.slice(offset, offset + this.productsPerPage);
+      return this.productsData
+        ? this.productsData.items.map((product) => ({
+          ...product,
+          image: product.image.file.url,
+          colors: product.colors.map((color) => color.id),
+        }))
+        : [];
     },
     countProducts() {
-      return this.filteredProducts.length;
+      return this.productsData ? this.productsData.pagination.total : 0;
     },
+    numberOfProductsLabel() {
+      return numberOfProducts(this.countProducts);
+    },
+  },
+  methods: {
+    loadProducts() {
+      this.productsLoading = true;
+      this.productsLoadingFailed = false;
+      setTimeout(() => {
+        clearTimeout(this.loadProductsTimer);
+        axios.get(
+          '/api/products',
+          {
+            params: {
+              page: this.page,
+              limit: this.productsPerPage,
+              categoryId: this.filters.categoryId,
+              minPrice: this.filters.priceFrom,
+              maxPrice: this.filters.priceTo,
+              colorId: this.filters.colorId,
+            },
+          },
+        )
+          .then((response) => { this.productsData = response.data; })
+          .catch(() => { this.productsLoadingFailed = true; })
+          .then(() => { this.productsLoading = false; });
+      },
+      0);
+    },
+    numberOfProducts,
+  },
+  watch: {
+    page() {
+      this.loadProducts();
+    },
+    // eslint-disable-next-line
+    'filters.priceFrom': function () {
+      this.loadProducts();
+    },
+    // eslint-disable-next-line
+    'filters.priceTo': function () {
+      this.loadProducts();
+    },
+    // eslint-disable-next-line
+    'filters.categoryId': function () {
+      this.loadProducts();
+    },
+    // eslint-disable-next-line
+    'filters.colorId': function () {
+      this.loadProducts();
+    },
+  },
+  created() {
+    this.loadProducts();
   },
 };
 </script>

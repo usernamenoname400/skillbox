@@ -37,7 +37,7 @@
 <script>
 import numberFormat from '@/helpers/numberFormat';
 import AmountSpinner from '@/components/AmountSpinner.vue';
-import { mapMutations } from 'vuex';
+import { mapActions } from 'vuex';
 
 export default {
   props: ['item'],
@@ -49,15 +49,12 @@ export default {
         return this.item.amount;
       },
       set(value) {
-        this.$store.commit(
-          'updateCartProductAmount',
-          { productId: this.item.productId, amount: value },
-        );
+        this.updateCartProductAmount({ productId: this.item.productId, amount: value });
       },
     },
   },
   methods: {
-    ...mapMutations(['deleteCartProduct']),
+    ...mapActions(['updateCartProductAmount', 'deleteCartProduct']),
   },
 };
 </script>

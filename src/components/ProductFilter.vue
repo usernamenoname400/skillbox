@@ -51,7 +51,7 @@
 
       <fieldset class="form__block">
         <legend class="form__legend colors--white">Цвет</legend>
-        <color-list :color-show-list="null" v-model="currentColorVal"/>
+        <color-list :color-show-list="null" v-model="currentColorId"/>
       </fieldset>
 
       <fieldset class="form__block">
@@ -135,7 +135,7 @@
 </template>
 
 <script>
-import categories from '../data/categories';
+import axios from 'axios';
 import ColorList from './ColorList.vue';
 
 export default {
@@ -144,14 +144,15 @@ export default {
       currentPriceFrom: 0,
       currentPriceTo: 0,
       currentCategoryId: 0,
-      currentColorVal: '',
+      currentColorId: 0,
+      categoriesData: null,
     };
   },
   components: { ColorList },
-  props: ['priceFrom', 'priceTo', 'categoryId', 'colorVal'],
+  props: ['priceFrom', 'priceTo', 'categoryId', 'colorId'],
   computed: {
     categories() {
-      return categories;
+      return this.categoriesData ? this.categoriesData.items : [];
     },
   },
   watch: {
@@ -164,8 +165,8 @@ export default {
     categoryId(value) {
       this.currentCategoryId = value;
     },
-    colorVal(value) {
-      this.currentColorVal = value;
+    colorId(value) {
+      this.currentColorId = value;
     },
   },
   methods: {
@@ -173,14 +174,22 @@ export default {
       this.$emit('update:priceFrom', this.currentPriceFrom);
       this.$emit('update:priceTo', this.currentPriceTo);
       this.$emit('update:categoryId', this.currentCategoryId);
-      this.$emit('update:colorVal', this.currentColorVal);
+      this.$emit('update:colorId', this.currentColorId);
     },
     reset() {
       this.$emit('update:priceFrom', 0);
       this.$emit('update:priceTo', 0);
       this.$emit('update:categoryId', 0);
-      this.$emit('update:colorVal', '');
+      this.$emit('update:colorId', 0);
     },
+    loadCategories() {
+      axios.get('/api/productCategories')
+        .then((response) => { this.categoriesData = response.data; })
+        .catch((error) => console.log(error));
+    },
+  },
+  created() {
+    this.loadCategories();
   },
 };
 </script>
