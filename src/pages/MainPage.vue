@@ -91,27 +91,16 @@ export default {
       },
       0);
     },
-    numberOfProducts,
   },
   watch: {
     page() {
       this.loadProducts();
     },
-    // eslint-disable-next-line
-    'filters.priceFrom': function () {
-      this.loadProducts();
-    },
-    // eslint-disable-next-line
-    'filters.priceTo': function () {
-      this.loadProducts();
-    },
-    // eslint-disable-next-line
-    'filters.categoryId': function () {
-      this.loadProducts();
-    },
-    // eslint-disable-next-line
-    'filters.colorId': function () {
-      this.loadProducts();
+    filters: {
+      handler() {
+        this.loadProducts();
+      },
+      deep: true,
     },
   },
   created() {

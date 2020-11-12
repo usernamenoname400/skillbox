@@ -1,5 +1,11 @@
 <template>
-  <main class="content container">
+  <main class="content container" v-if="basketLoading">
+    Загрузка корзины....
+  </main>
+  <main class="content container" v-else-if="basketLoadingFailed">
+    Ошибка при загрузке корзины
+  </main>
+  <main class="content container" v-else>
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
@@ -50,10 +56,16 @@
 <script>
 import CartItem from '@/components/CartItem.vue';
 import numberFormat from '@/helpers/numberFormat';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import numberOfProducts from '@/helpers/numberOfProducts';
 
 export default {
+  data() {
+    return {
+      basketLoading: true,
+      basketLoadingFailed: false,
+    };
+  },
   components: { CartItem },
   filters: { numberFormat },
   computed: {
@@ -63,7 +75,16 @@ export default {
     },
   },
   methods: {
-    numberOfProducts,
+    ...mapActions(['loadCart']),
+  },
+  mounted() {
+    this.basketLoading = true;
+    this.loadCart()
+      .then(() => { this.basketLoading = false; })
+      .catch(() => {
+        this.basketLoading = false;
+        this.basketLoadingFailed = false;
+      });
   },
 };
 </script>

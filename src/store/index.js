@@ -9,6 +9,8 @@ export default new Vuex.Store({
     cartProducts: [],
     userAccessKey: null,
     cartProductsData: [],
+    cartProductCount: null,
+    cartLoading: false,
   },
   mutations: {
     updateCartProductAmount(state, { productId, amount }) {
@@ -29,6 +31,12 @@ export default new Vuex.Store({
         productId: item.product.id,
         amount: item.quantity,
       }));
+    },
+    updateCartProductCount(state, productCount) {
+      state.cartProductCount = productCount;
+    },
+    updateCartLoading(state, value) {
+      state.cartLoading = value;
     },
   },
   getters: {
@@ -58,6 +66,7 @@ export default new Vuex.Store({
   },
   actions: {
     loadCart(context) {
+      context.commit('updateCartLoading', true);
       return axios.get('/api/baskets', { params: { userAccessKey: context.state.userAccessKey } })
         .then((response) => {
           if (!context.state.userAccessKey) {
@@ -66,6 +75,22 @@ export default new Vuex.Store({
           }
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
+          context.commit('updateCartProductCount', response.data.items.length);
+          context.commit('updateCartLoading', false);
+        });
+    },
+    loadCartCount(context) {
+      if (context.state.cartProductCount || context.state.cartLoading) {
+        context.commit('updateCartProductCount', context.state.cartProductsData.length);
+        return null;
+      }
+      return axios.get('/api/baskets', { params: { userAccessKey: context.state.userAccessKey } })
+        .then((response) => {
+          if (!context.state.userAccessKey) {
+            localStorage.setItem('userAccessKey', response.data.user.accesskey);
+            context.commit('updateUserAccessKey', response.data.user.accesskey);
+          }
+          context.commit('updateCartProductCount', response.data.items.length);
         });
     },
     addProductToCart(context, { productId, amount }) {
@@ -82,6 +107,7 @@ export default new Vuex.Store({
         .then((response) => {
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
+          context.commit('updateCartProductCount', response.data.items.length);
         });
     },
     updateCartProductAmount(context, { productId, amount }) {
@@ -115,6 +141,7 @@ export default new Vuex.Store({
         .then((response) => {
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
+          context.commit('updateCartProductCount', response.data.items.length);
         })
         .catch(() => { context.commit('syncCartProducts'); });
     },
