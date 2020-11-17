@@ -43,10 +43,15 @@
           <p class="cart__price">
             Итого: <span>{{cartTotalPrice | numberFormat}} ₽</span>
           </p>
-
-          <button class="cart__button button button--primery" type="submit">
+          <router-link
+            tag="button"
+            :to="{ name: 'order' }"
+            class="cart__button button button--primery"
+            type="submit"
+            :disabled="!cartProductQuantity"
+          >
             Оформить заказ
-          </button>
+          </router-link>
         </div>
       </form>
     </section>
@@ -54,37 +59,11 @@
 </template>
 
 <script>
+import cartDataMixIn from '@/mixins/cartDataMixIn';
 import CartItem from '@/components/CartItem.vue';
-import numberFormat from '@/helpers/numberFormat';
-import { mapGetters, mapActions } from 'vuex';
-import numberOfProducts from '@/helpers/numberOfProducts';
 
 export default {
-  data() {
-    return {
-      basketLoading: true,
-      basketLoadingFailed: false,
-    };
-  },
+  mixins: [cartDataMixIn],
   components: { CartItem },
-  filters: { numberFormat },
-  computed: {
-    ...mapGetters(['cartDetailProducts', 'cartTotalPrice']),
-    cartProductCount() {
-      return numberOfProducts(this.$store.state.cartProducts.length);
-    },
-  },
-  methods: {
-    ...mapActions(['loadCart']),
-  },
-  mounted() {
-    this.basketLoading = true;
-    this.loadCart()
-      .then(() => { this.basketLoading = false; })
-      .catch(() => {
-        this.basketLoading = false;
-        this.basketLoadingFailed = false;
-      });
-  },
 };
 </script>

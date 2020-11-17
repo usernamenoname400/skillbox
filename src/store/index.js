@@ -11,8 +11,17 @@ export default new Vuex.Store({
     cartProductsData: [],
     cartProductCount: null,
     cartLoading: false,
+    orderInfo: null,
   },
   mutations: {
+    updateOrderInfo(state, orderInfo) {
+      state.orderInfo = orderInfo;
+    },
+    resetCart(state) {
+      state.cartProducts = [];
+      state.cartProductsData = [];
+      state.cartProductCount = 0;
+    },
     updateCartProductAmount(state, { productId, amount }) {
       const productItem = state.cartProducts.find((item) => item.productId === productId);
 
@@ -63,8 +72,59 @@ export default new Vuex.Store({
         0,
       );
     },
+    cartProductQuantity(state) {
+      return state.cartProducts ? state.cartProducts.length : 0;
+    },
+    orderProductQuantity(state) {
+      if (state.orderInfo) {
+        return state.orderInfo.basket.items.length || 0;
+      }
+      return 0;
+    },
+    orderTotalPrice(state) {
+      if (state.orderInfo) {
+        return state.orderInfo.totalPrice || 0;
+      }
+      return 0;
+    },
+    orderInfoMain(state) {
+      if (state.orderInfo) {
+        return {
+          id: state.orderInfo.id,
+          name: state.orderInfo.name,
+          address: state.orderInfo.address,
+          phone: state.orderInfo.phone,
+          email: state.orderInfo.email,
+        };
+      }
+      return {};
+    },
+    orderProducts(state) {
+      if (state.orderInfo) {
+        const pds = state.orderInfo.basket.items.map((item) => {
+          const { product } = item;
+
+          return {
+            ...item,
+            product: {
+              ...product,
+              image: product.image.file.url,
+            },
+            amount: item.quantity,
+          };
+        });
+        return pds;
+      }
+      return [];
+    },
   },
   actions: {
+    loadOrderInfo(context, orderId) {
+      return axios.get(`/api/orders/${orderId}`, { params: { userAccessKey: context.state.userAccessKey } })
+        .then((response) => {
+          context.commit('updateOrderInfo', response.data);
+        });
+    },
     loadCart(context) {
       context.commit('updateCartLoading', true);
       return axios.get('/api/baskets', { params: { userAccessKey: context.state.userAccessKey } })
