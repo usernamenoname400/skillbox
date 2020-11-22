@@ -26,6 +26,7 @@
 </template>
 
 <script>
+import { API_BASE_URL } from '@/config';
 import ProductList from '@/components/ProductList.vue';
 import BasePagination from '@/components/BasePagination.vue';
 import ProductFilter from '@/components/ProductFilter.vue';
@@ -73,7 +74,7 @@ export default {
       setTimeout(() => {
         clearTimeout(this.loadProductsTimer);
         axios.get(
-          '/api/products',
+          `${API_BASE_URL}/api/products`,
           {
             params: {
               page: this.page,

@@ -157,6 +157,7 @@
 
 <script>
 import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 import { mapActions } from 'vuex';
 import gotoPage from '@/helpers/gotoPage';
 import numberFormat from '@/helpers/numberFormat';
@@ -211,7 +212,7 @@ export default {
       this.productsLoading = true;
       this.productsLoadingFailed = false;
       clearTimeout(this.loadProductsTimer);
-      axios.get(`/api/products/${this.$route.params.id}`)
+      axios.get(`${API_BASE_URL}/api/products/${this.$route.params.id}`)
         .then((response) => {
           this.productData = response.data;
         })

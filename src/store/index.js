@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
 Vue.use(Vuex);
 
@@ -120,14 +121,14 @@ export default new Vuex.Store({
   },
   actions: {
     loadOrderInfo(context, orderId) {
-      return axios.get(`/api/orders/${orderId}`, { params: { userAccessKey: context.state.userAccessKey } })
+      return axios.get(`${API_BASE_URL}/api/orders/${orderId}`, { params: { userAccessKey: context.state.userAccessKey } })
         .then((response) => {
           context.commit('updateOrderInfo', response.data);
         });
     },
     loadCart(context) {
       context.commit('updateCartLoading', true);
-      return axios.get('/api/baskets', { params: { userAccessKey: context.state.userAccessKey } })
+      return axios.get(`${API_BASE_URL}/api/baskets`, { params: { userAccessKey: context.state.userAccessKey } })
         .then((response) => {
           if (!context.state.userAccessKey) {
             localStorage.setItem('userAccessKey', response.data.user.accesskey);
@@ -144,7 +145,7 @@ export default new Vuex.Store({
         context.commit('updateCartProductCount', context.state.cartProductsData.length);
         return null;
       }
-      return axios.get('/api/baskets', { params: { userAccessKey: context.state.userAccessKey } })
+      return axios.get(`${API_BASE_URL}/api/baskets`, { params: { userAccessKey: context.state.userAccessKey } })
         .then((response) => {
           if (!context.state.userAccessKey) {
             localStorage.setItem('userAccessKey', response.data.user.accesskey);
@@ -155,7 +156,7 @@ export default new Vuex.Store({
     },
     addProductToCart(context, { productId, amount }) {
       return axios.post(
-        '/api/baskets/products',
+        `${API_BASE_URL}/api/baskets/products`,
         {
           productId,
           quantity: amount,
@@ -178,7 +179,7 @@ export default new Vuex.Store({
       }
 
       return axios.put(
-        '/api/baskets/products',
+        `${API_BASE_URL}/api/baskets/products`,
         {
           productId,
           quantity: amount,
@@ -192,7 +193,7 @@ export default new Vuex.Store({
     },
     deleteCartProduct(context, productId) {
       return axios.delete(
-        '/api/baskets/products',
+        `${API_BASE_URL}/api/baskets/products`,
         {
           data: { productId },
           params: { userAccessKey: context.state.userAccessKey },

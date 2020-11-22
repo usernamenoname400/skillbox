@@ -137,6 +137,7 @@
 
 <script>
 import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 import cartDataMixIn from '@/mixins/cartDataMixIn';
 import BaseFormTextArea from '@/components/BaseFormTextArea.vue';
 import BaseFormText from '@/components/BaseFormText.vue';
@@ -162,7 +163,7 @@ export default {
       this.formErrorMessage = '';
       this.basketLoading = true;
 
-      axios.post('/api/orders', {
+      axios.post(`${API_BASE_URL}/api/orders`, {
         ...this.formData,
       }, {
         params: { userAccessKey: this.$store.state.userAccessKey },

@@ -100,16 +100,28 @@ export default {
   methods: {
     ...mapActions(['loadOrderInfo']),
   },
-  created() {
-    if (this.$store.state.orderInfo && this.$store.state.orderInfo.id === this.$route.params.id) {
-      return;
-    }
-    this.loadOrderInfo(this.$route.params.id);
-  },
   computed: {
     ...mapGetters(['orderProductQuantity', 'orderTotalPrice', 'orderProducts', 'orderInfoMain']),
     orderProductCount() {
       return numberOfProducts(this.orderProductQuantity);
+    },
+  },
+  watch: {
+    // eslint-disable-next-line
+    '$route.params.id': {
+      handler() {
+        if (
+          this.$store.state.orderInfo
+           && this.$store.state.orderInfo.id === this.$route.params.id
+        ) {
+          return;
+        }
+        this.loadOrderInfo(this.$route.params.id)
+          .catch(() => {
+            this.$router.replace({ name: 'notfound', params: { 0: this.$route.path } });
+          });
+      },
+      immediate: true,
     },
   },
 };

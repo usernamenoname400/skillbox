@@ -136,6 +136,7 @@
 
 <script>
 import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 import ColorList from './ColorList.vue';
 
 export default {
@@ -183,7 +184,7 @@ export default {
       this.$emit('update:colorId', 0);
     },
     loadCategories() {
-      axios.get('/api/productCategories')
+      axios.get(`${API_BASE_URL}/api/productCategories`)
         .then((response) => { this.categoriesData = response.data; })
         .catch((error) => console.log(error));
     },

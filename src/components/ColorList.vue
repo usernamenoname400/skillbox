@@ -21,6 +21,7 @@
 
 <script>
 import axios from 'axios';
+import { API_BASE_URL } from '@/config';
 
 export default {
   model: {
@@ -57,7 +58,7 @@ export default {
   },
   methods: {
     loadColors() {
-      axios.get('/api/colors')
+      axios.get(`${API_BASE_URL}/api/colors`)
         .then((response) => {
           this.colorData = response.data.items.map((color) => ({ ...color, value: color.code }));
         })
