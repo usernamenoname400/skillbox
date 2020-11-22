@@ -131,8 +131,8 @@ export default new Vuex.Store({
       return axios.get(`${API_BASE_URL}/api/baskets`, { params: { userAccessKey: context.state.userAccessKey } })
         .then((response) => {
           if (!context.state.userAccessKey) {
-            localStorage.setItem('userAccessKey', response.data.user.accesskey);
-            context.commit('updateUserAccessKey', response.data.user.accesskey);
+            localStorage.setItem('userAccessKey', response.data.user.accessKey);
+            context.commit('updateUserAccessKey', response.data.user.accessKey);
           }
           context.commit('updateCartProductsData', response.data.items);
           context.commit('syncCartProducts');
@@ -148,8 +148,8 @@ export default new Vuex.Store({
       return axios.get(`${API_BASE_URL}/api/baskets`, { params: { userAccessKey: context.state.userAccessKey } })
         .then((response) => {
           if (!context.state.userAccessKey) {
-            localStorage.setItem('userAccessKey', response.data.user.accesskey);
-            context.commit('updateUserAccessKey', response.data.user.accesskey);
+            localStorage.setItem('userAccessKey', response.data.user.accessKey);
+            context.commit('updateUserAccessKey', response.data.user.accessKey);
           }
           context.commit('updateCartProductCount', response.data.items.length);
         });
@@ -178,7 +178,7 @@ export default new Vuex.Store({
         return null;
       }
 
-      return axios.put(
+      return axiol;skaskds.put(
         `${API_BASE_URL}/api/baskets/products`,
         {
           productId,
