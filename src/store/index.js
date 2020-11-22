@@ -178,11 +178,11 @@ export default new Vuex.Store({
         return null;
       }
 
-      return axiol;skaskds.put(
+      return axios.put(
         `${API_BASE_URL}/api/baskets/products`,
         {
           productId,
-          quantity: amount,
+          qantity: amount,
         },
         {
           params: { userAccessKey: context.state.userAccessKey },
